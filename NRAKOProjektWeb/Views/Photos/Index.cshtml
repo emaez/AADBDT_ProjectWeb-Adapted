@@ -1,0 +1,294 @@
+﻿@model IEnumerable<NRAKOProjektWeb.ViewModels.PhotoViewModel>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+@if (ViewBag.ShowFilter == null ? false : ViewBag.ShowFilter)
+{
+    <div class="search-panel">
+        @using (Html.BeginForm("FilterPhotos", "Photos", FormMethod.Get))
+        {
+            <div class="row" style="border:1px solid #1877d1; padding:5px">
+                <div class="col">
+                    <p>
+                        <label for="sizeAmount">Photo size:</label>
+                        <input type="text" id="sizeAmount" readonly style="border:0; color:#f6931f; font-weight:bold;">
+                        <input type="hidden" id="sizeRange" name="sizeRange" value="" />
+                    </p>
+                    <div id="slider-range-size"></div>
+
+                    <p>
+                        <label for="widthAmount">Photo width:</label>
+                        <input type="text" id="widthAmount" readonly style="border:0; color:#f6931f; font-weight:bold;">
+                        <input type="hidden" id="widthRange" name="widthRange" value="" />
+                    </p>
+                    <div id="slider-range-width"></div>
+
+                    <p>
+                        <label for="heightAmount">Photo height:</label>
+                        <input type="text" id="heightAmount" readonly style="border:0; color:#f6931f; font-weight:bold;">
+                        <input type="hidden" id="heightRange" name="heightRange" value="" />
+                    </p>
+                    <div id="slider-range-height"></div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label for="hashtagFilter" class="control-label">Hashtags: </label>
+                        <input type="text" name="hashtagsFilter" class="form-control" value="@ViewBag.HashtagsFilter" />
+                    </div>
+                    <div class="form-group">
+                        <label for="authorFilter" class="control-label">Author: </label>
+                        <input type="text" name="authorFilter" class="form-control" value="@ViewBag.AuthorFilter" />
+                    </div>
+
+                    <input type="submit" class="btn btn-primary float-right" value="Filter" />
+
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@*@Component.InvokeAsync("FilterPanel", ViewBag.FilterData != null ? ViewBag.FilterData: new NRAKOProjektWeb.ViewModels.FilterDataViewModel()).Result*@
+<div style="margin-top: 30px">
+    <p class="float-right">
+        <a asp-action="CreateNewPhoto" class="btn btn-primary">Upload new photo</a>
+    </p>
+    <div id="gallery" style="padding-top: 60px">
+        <div class="row">
+            <div class="row">
+
+                @foreach (var item in Model)
+                {
+
+                    <div class="col-lg-3 col-md-4 col-xs-6 thumb-wrapper">
+                        <div class="thumb">
+
+                            <a class="thumbnail" href="#" data-image-id="" data-image-db-id="@item.Id" data-toggle="modal" data-title=""
+                               data-image="@Url.Content(item.Url)"
+                               data-description="@item.Description"
+                               data-author="@item.Author"
+                               data-uploaded-at="@item.UploadedAt"
+                               data-hashtags="@foreach (var hashtag in item.Hashtags)
+                           {
+                               @String.Format($"#{hashtag} ")
+                           }
+                           "
+                               data-target="#image-gallery">
+                                <img class="img-thumbnail"
+                                     src="@Url.Content(item.Url)"
+                                     alt="Another alt text">
+                            </a>
+                            <div class="thumb-content">
+                                <p>@item.Description</p>
+                                <p>Uploaded by: @item.Author</p>
+                                <p>Uploaded at: @item.UploadedAt</p>
+                                <p>
+                                    @foreach (var hashtag in item.Hashtags)
+                                    {
+                                        <span>#</span><span>@hashtag</span>
+                                    }
+                                </p>
+                                <p>
+                                    @if (item.Editable)
+                                    {
+                                        @Html.ActionLink("Edit", "EditPhoto", routeValues: new { item.Id }, htmlAttributes: new { @class = "btn btn-primary" })
+                                    }
+                                    @Html.ActionLink("Download", "DownloadPhoto", routeValues: new { item.Id }, htmlAttributes: new { @class = "btn btn-primary" })
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+            <div class="modal fade" id="image-gallery" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title" id="image-gallery-title"></h4>
+                            <button type="button" class="close" data-dismiss="modal">
+                                <span aria-hidden="true">×</span><span class="sr-only">Close</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <img id="image-gallery-image" class="img-responsive col-md-12" src="">
+                            <div class="thumb-content">
+                                <p><span id="image-gallery-description"></span></p>
+                                <p>Uploaded by:<span id="image-gallery-author"></span></p>
+                                <p>Uploaded at:<span id="image-gallery-uploaded-at"></span></p>
+                                <p>
+                                    <span id="image-gallery-hashtags"></span>
+                                </p>
+                                <form action="/Photos/DownloadPhoto" method="get">
+                                    <input type="hidden" id="photoId" name="id" value="" />
+                                    <input type="submit" class="btn btn-primary" value="Download" />
+                                </form>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary float-left" id="show-previous-image">
+                                <i class="fa fa-arrow-left"></i>
+                            </button>
+                            <button type="button" id="show-next-image" class="btn btn-secondary float-right">
+                                <i class="fa fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script>
+        $(function () {
+
+            $("#slider-range-size").slider({
+                range: true,
+                min: 0,
+                max: @ViewBag.MaxSize,
+                values: [@ViewBag.SizeRangeMin, @ViewBag.SizeRangeMax],
+                slide: function (event, ui) {
+                    $("#sizeAmount").val(ui.values[0] + "KB - " + ui.values[1] + "KB");
+                    $("#sizeRange").val(ui.values[0] + "-" + ui.values[1]);
+
+                }
+            });
+            $("#sizeAmount").val($("#slider-range-size").slider("values", 0) +
+                "KB - " + $("#slider-range-size").slider("values", 1) + "KB");
+            $("#sizeRange").val($("#slider-range-size").slider("values", 0) +
+                "-" + $("#slider-range-size").slider("values", 1));
+
+            $("#slider-range-width").slider({
+                range: true,
+                min: 0,
+                max:@ViewBag.MaxWidth,
+                values: [@ViewBag.WidthRangeMin, @ViewBag.WidthRangeMax],
+                slide: function (event, ui) {
+                    $("#widthAmount").val(ui.values[0] + "px - " + ui.values[1] + "px");
+                    $("#widthRange").val(ui.values[0] + "-" + ui.values[1]);
+
+                }
+            });
+            $("#widthAmount").val($("#slider-range-width").slider("values", 0) +
+                "px - " + $("#slider-range-width").slider("values", 1) + "px");
+            $("#widthRange").val($("#slider-range-width").slider("values", 0) +
+                "-" + $("#slider-range-width").slider("values", 1));
+
+            $("#slider-range-height").slider({
+                range: true,
+                min: 0,
+                max: @ViewBag.MaxHeight,
+                values: [@ViewBag.HeightRangeMin, @ViewBag.HeightRangeMax],
+                slide: function (event, ui) {
+                    $("#heightAmount").val(ui.values[0] + "px - " + ui.values[1] + "px");
+                    $("#heightRange").val(ui.values[0] + "-" + ui.values[1]);
+
+                }
+            });
+            $("#heightAmount").val($("#slider-range-height").slider("values", 0) +
+                "px - " + $("#slider-range-height").slider("values", 1) + "px");
+            $("#heightRange").val($("#slider-range-height").slider("values", 0) +
+                "-" + $("#slider-range-height").slider("values", 1));
+
+            ////////////////////////////
+             loadGallery(true, 'a.thumbnail');
+
+        //This function disables buttons when needed
+        function disableButtons(counter_max, counter_current) {
+          $('#show-previous-image, #show-next-image')
+            .show();
+          if (counter_max === counter_current) {
+            $('#show-next-image')
+              .hide();
+          } else if (counter_current === 1) {
+            $('#show-previous-image')
+              .hide();
+          }
+        }
+
+        /**
+         *
+         * @@param setIDs        Sets IDs when DOM is loaded. If using a PHP counter, set to false.
+         * @@param setClickAttr  Sets the attribute for the click handler.
+         */
+
+        function loadGallery(setIDs, setClickAttr) {
+          let current_image,
+            selector,
+            counter = 0;
+
+          $('#show-next-image, #show-previous-image')
+            .click(function () {
+              if ($(this)
+                .attr('id') === 'show-previous-image') {
+                current_image--;
+              } else {
+                current_image++;
+              }
+
+              selector = $('[data-image-id="' + current_image + '"]');
+              updateGallery(selector);
+            });
+
+          function updateGallery(selector) {
+            let $sel = selector;
+              current_image = $sel.data('image-id');
+              $('#photoId').val($sel.data('image-db-id'))
+            $('#image-gallery-title')
+              .text($sel.data('title'));
+            $('#image-gallery-image')
+                  .attr('src', $sel.data('image'));
+              $('#image-gallery-description')
+                  .text($sel.data('description'));
+              $('#image-gallery-author')
+                  .text($sel.data('author'));
+              $('#image-gallery-uploaded-at')
+                  .text($sel.data('uploaded-at'));
+              $('#image-gallery-hashtags')
+                      .text($sel.data('hashtags'));
+
+            disableButtons(counter, $sel.data('image-id'));
+          }
+
+          if (setIDs == true) {
+            $('[data-image-id]')
+              .each(function () {
+                counter++;
+                $(this)
+                  .attr('data-image-id', counter);
+              });
+          }
+          $(setClickAttr)
+            .on('click', function () {
+              updateGallery($(this));
+            });
+        }
+        });
+
+        $(document)
+            .keydown(function (e) {
+                switch (e.which) {
+                    case 37: // left
+                        if ((modalId.data('bs.modal') || {})._isShown && $('#show-previous-image').is(":visible")) {
+                            $('#show-previous-image')
+                                .click();
+                        }
+                        break;
+
+                    case 39: // right
+                        if ((modalId.data('bs.modal') || {})._isShown && $('#show-next-image').is(":visible")) {
+                            $('#show-next-image')
+                                .click();
+                        }
+                        break;
+
+                    default:
+                        return; // exit this handler for other keys
+                }
+                e.preventDefault(); // prevent the default action (scroll / move caret)
+            });
+    </script>
+}

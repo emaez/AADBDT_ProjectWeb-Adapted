@@ -1,0 +1,145 @@
+﻿@model NRAKOProjektWeb.ViewModels.DownloadPhotoViewModel
+
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>DownloadPhoto</title>
+</head>
+<body>
+
+    <div>
+        <h4>DownloadPhotoViewModel</h4>
+        <hr />
+        <dl class="row"></dl>
+        <form method="post" id="testForm">
+            <input type="hidden" name="photoUrl" value="@Model.PhotoUrl" />
+            <input type="hidden" id="actionList" name="actionList" value="" />
+
+            <div id="downloadOptions">
+                <div class="form-inline">
+                </div>
+            </div>
+            <button type="button" id="addOption" class="btn btn-primary m-2">Add Option</button>
+
+            <div class="form-check">
+                @Html.CheckBoxFor(model => model.DoConversion, new { @class = "form-check-input" })
+                @Html.LabelFor(model => model.DoConversion, new { @class = "form-check-label" })
+            </div>
+            <div id="conversionOptions" class="form-group">
+                @foreach (var item in Model.AvailableFormats)
+                {
+                    <div class="form-check">
+                        <label class="form-check-label">
+                            <input type="radio" class="form-check-input" name="ConversionExtension" value="@item" checked disabled>@item
+                        </label>
+                    </div>
+
+                }
+            </div>
+            @Html.HiddenFor(x => x.OriginalImageExtension)
+
+        </form>
+
+
+    </div>
+    <div>
+        <button type="button" id="testBtn" class="btn btn-primary"> Click me</button>
+        @Html.ActionLink("Edit", "Edit", new { /* id = Model.PrimaryKey */ }) |
+        <a asp-action="Index">Back to List</a>
+    </div>
+</body>
+</html>
+
+@section Scripts {
+    <script>
+            var selectElement = '<select class="custom-select col-md-4 optionsSelector"><option selected value="">---Please choose---</option>@foreach (var item in Model.AvailableActions){<option value="@item">@item</option>}</select>'
+            var selectFormatElement = '<select class="custom-select col-md-4 formatSelector" name="format"><option selected value="">---Please choose---</option>@foreach (var item in Model.AvailableFormats){<option value="@item">@item</option>}</select>'
+            var inputResizeElemets = '<input class="form-control" type="number" name="resizeWidth" placeholder="Width" value="@Model.ResizeWidth" /><input class="form-control" type="number" name="resizeHeight" placeholder="Height" value="@Model.ResizeHeight" />'
+            var inputAmountElement = '<input class="form-control" type="number" name="amount" placeholder="Amount" value="" min="1" max="10" />'
+            var classname = "form-inline"
+        $(function () {
+            addElement();
+
+            var cnt = 0;
+            $('#testBtn').click(function () {
+                var selectors = $('.optionsSelector');
+                var output = "[";
+                for (var i = 0; i < selectors.length; i++) {
+                    var selector = $(selectors[i]);
+                    if (selector.val() != "") {
+                        output += '{"Action" : ' + '"' +selector.val() + '"' + ', "Params" : {';
+                        var mutationOptions = $(selector.parent()).children();
+                        for (var j = 1; j < mutationOptions.length; j++) {
+                            output += '"' + $(mutationOptions[j]).attr("name") + '"';
+                            output += ' :';
+                            output += '"' + $(mutationOptions[j]).val() + '"';
+                            if (j < mutationOptions.length-1) {
+                                output += ',';
+                            }
+                        }
+                        output += '}}';
+                        if (i < selectors.length-1) {
+                            output += ',';
+                        }
+                    }
+                };
+                output += ']';
+                $('#actionList').val(output);
+                console.log(output);
+                $("#testForm").submit();
+            });
+
+            $('#addOption').click(addElement);
+
+            $('#DoConversion').change(function () {
+                console.log($(this).is(':checked'));
+                var radios = $("input:radio[name ='ConversionExtension']");
+
+                if ($(this).is(':checked')) {
+                    for (i = 0; i <= radios.length; i++) {
+                        $(radios[i]).removeAttr('disabled');
+                    }
+                }
+                else {
+                    for (i = 0; i <= radios.length; i++) {
+                        $(radios[i]).attr('disabled', 'disabled');
+                    }
+
+
+                }
+            })
+        })
+
+        function addElement () {
+
+            d = document.createElement('div');
+            $($(d).addClass(classname)
+                .html(selectElement)
+                .appendTo($("#downloadOptions")) //main div
+                .children()[0])
+                .change(function () {
+                    var parent = $($(this).parent());
+                    for (var i = parent.children().length; i >= 1; i--) {
+                        $(parent.children()[i]).remove()
+
+                    }
+                    if ($(this).val() == "Resize") {
+                        console.log("ResizeSelected");
+                        $($(this).parent()).append(inputResizeElemets);
+                    }
+                    else if ($(this).val() == "Format") {
+                        console.log("FormatSelected");
+                        $($(this).parent()).append(selectFormatElement);
+                    }
+                    else {
+                        console.log("SomethingElseSelected");
+                        $($(this).parent()).append(inputAmountElement);
+                    }
+                })
+        }
+    </script>
+
+}

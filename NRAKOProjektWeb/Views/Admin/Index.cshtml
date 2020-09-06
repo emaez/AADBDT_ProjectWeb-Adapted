@@ -1,0 +1,13 @@
+﻿
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Admin page</h1>
+
+<ul style="list-style:none">
+    <li>
+        @Html.ActionLink("Manage users", "ManageUsers", routeValues: null, htmlAttributes: new { @class = "btn btn-primary" })
+    </li>
+</ul>
+

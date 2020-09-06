@@ -1,0 +1,25 @@
+﻿@page
+@model NRAKOProjektWeb.Areas.Identity.Pages.Account.Manage.ManagePackageModel
+@{
+}
+
+<h1>You are using @Model.Input.SubscriptionModel.Name package</h1>
+
+<h3>Current consumption in the package:</h3>
+
+<p>Uploaded photos: @Model.Input.PictureCount of @Model.Input.SubscriptionModel.MaxNumberOfPhotos</p>
+<div class="progress">
+    <div class="progress-bar" role="progressbar" style="width: @Model.Input.PhotoCountPercentage%" aria-valuenow="@Model.Input.PictureCount" aria-valuemin="0" aria-valuemax="@Model.Input.SubscriptionModel.MaxNumberOfPhotos"></div>
+</div>
+
+<p>Uploaded today: @Model.Input.TodayUploaded of @Model.Input.SubscriptionModel.DailyUploadLimit</p>
+<div class="progress">
+    <div class="progress-bar" role="progressbar" style="width: @Model.Input.TodayUploadedPercentage%" aria-valuenow="@Model.Input.TodayUploaded" aria-valuemin="0" aria-valuemax="@Model.Input.SubscriptionModel.DailyUploadLimit"></div>
+</div>
+<form method="post">
+
+    @Component.InvokeAsync("SubscriptionModelSelection").Result
+    
+    <input type="submit" class="btn btn-primary" value="Save" />
+</form>
+

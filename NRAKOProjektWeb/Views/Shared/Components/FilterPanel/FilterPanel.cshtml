@@ -1,0 +1,49 @@
+﻿@model NRAKOProjektWeb.ViewModels.FilterDataViewModel
+
+<div class="search-panel">
+    @using (Html.BeginForm("FilterPhotos", "Photos", FormMethod.Get))
+    {
+        <p>
+            <label for="sizeAmount">Photo size:</label>
+            <input type="text" id="sizeAmount" readonly style="border:0; color:#f6931f; font-weight:bold;">
+            <input type="hidden" id="sizeRange" name="sizeRange" value="" />
+        </p>
+        <div id="slider-range-size"></div>
+
+        <p>
+            <label for="widthAmount">Photo width:</label>
+            <input type="text" id="widthAmount" readonly style="border:0; color:#f6931f; font-weight:bold;">
+            <input type="hidden" id="widthRange" name="widthRange" value="" />
+        </p>
+        <div id="slider-range-width"></div>
+
+        <p>
+            <label for="heightAmount">Photo height:</label>
+            <input type="text" id="heightAmount" readonly style="border:0; color:#f6931f; font-weight:bold;">
+            <input type="hidden" id="heightRange" name="heightRange" value="" />
+        </p>
+        <div id="slider-range-height"></div>
+
+        <div class="form-group">
+            <label for="hashtagFilter" class="control-label">Hashtags: </label>
+            <input type="text" name="hashtagsFilter" class="form-control" value="@Model.HashtagsFilter" />
+        </div>
+        <div class="form-group">
+            <label for="authorFilter" class="control-label">Author: </label>
+            <input type="text" name="authorFilter" class="form-control" value="@Model.AuthorFilter" />
+        </div>
+
+        <input type="hidden" id="HeightRangeMax" value="@Model.HeightRangeMax" />
+        <input type="hidden" id="HeightRangeMin" value="@Model.HeightRangeMin" />
+        <input type="hidden" id="WidthRangeMax" value="@Model.WidthRangeMax" />
+        <input type="hidden" id="WidthRangeMin" value="@Model.WidthRangeMin" />
+        <input type="hidden" id="SizeRangeMax" value="@Model.SizeRangeMax" />
+        <input type="hidden" id="SizeRangeMin" value="@Model.SizeRangeMin" />
+        <input type="hidden" id="MaxHeight" value="@Model.MaxHeight" />
+        <input type="hidden" id="MaxSize" value="@Model.MaxSize" />
+        <input type="hidden" id="MaxWidth" value="@Model.MaxWidth" />
+
+        <input type="submit" class="btn btn-primary" value="Filter" />
+
+    }
+</div>

@@ -1,0 +1,31 @@
+﻿@model IEnumerable<NRAKOProjektWeb.ViewModels.SubscriptionModelsViewModel>
+
+<section class="pricing py-5">
+    <div class="container">
+        <div class="row">
+            @foreach (var item in Model)
+            {
+                <div class="col-lg-4">
+                    <div class="card mb-5 mb-lg-0">
+                        <div class="card-body">
+                            <h5 class="card-title text-muted text-uppercase text-center">@item.Name</h5>
+                            <h6 class="card-price text-center">$@item.Price<span class="period">/month</span></h6>
+                            <hr>
+                            <ul class="fa-ul">
+                                <li><span class="fa-li"><i class="fas fa-check"></i></span><strong>Maximum photos: @item.MaxNumberOfPhotos</strong></li>
+                                <li><span class="fa-li"><i class="fas fa-check"></i></span>Maximum photo size: @item.MaxUploadSize MB</li>
+                                <li><span class="fa-li"><i class="fas fa-check"></i></span>Daily upload limit: @item.DailyUploadLimit</li>
+                            </ul>
+                            <button type="button" id="selectButton" class="btn btn-block btn-primary text-uppercase selectButton" data-id="@item.Id">Select</button>
+                        </div>
+                    </div>
+                </div>
+
+            }
+
+        </div>
+    </div>
+</section>
+<input id="subscriptionModelId" type="hidden" name="Input.SubscriptionModelId" value="" />
+
+

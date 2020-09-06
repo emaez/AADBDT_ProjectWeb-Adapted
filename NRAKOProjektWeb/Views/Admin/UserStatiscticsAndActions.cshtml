@@ -1,0 +1,53 @@
+﻿@model NRAKOProjektWeb.ViewModels.UserStatisticsAndActionsViewModel
+
+@{
+    ViewData["Title"] = "UserStatiscticsAndActions";
+}
+
+<h1>UserStatiscticsAndActions</h1>
+
+<h1>User @Model.Username is using @Model.SubscriptionModel.Name package</h1>
+
+<h3>Current consumption in the package:</h3>
+
+<p>Uploaded photos: @Model.PictureCount of @Model.SubscriptionModel.MaxNumberOfPhotos</p>
+<div class="progress">
+    <div class="progress-bar" role="progressbar" style="width: @Model.PhotoCountPercentage%" aria-valuenow="@Model.PictureCount" aria-valuemin="0" aria-valuemax="@Model.SubscriptionModel.MaxNumberOfPhotos"></div>
+</div>
+
+<p>Uploaded today: @Model.TodayUploaded of @Model.SubscriptionModel.DailyUploadLimit</p>
+<div class="progress">
+    <div class="progress-bar" role="progressbar" style="width: @Model.TodayUploadedPercentage%" aria-valuenow="@Model.TodayUploaded" aria-valuemin="0" aria-valuemax="@Model.SubscriptionModel.DailyUploadLimit"></div>
+</div>
+
+<hr />
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.LogEntries.FirstOrDefault().CreatedAt)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.LogEntries.FirstOrDefault().Text)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.LogEntries)
+        {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.CreatedAt)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Text)
+            </td>
+
+            <td>
+            </td>
+        </tr>
+        }
+    </tbody>
+</table>

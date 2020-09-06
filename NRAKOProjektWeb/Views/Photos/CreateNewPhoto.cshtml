@@ -1,0 +1,166 @@
+﻿@model NRAKOProjektWeb.ViewModels.CreatePhotoViewModel
+
+@{
+    ViewData["Title"] = "CreateNewPhoto";
+}
+
+<h1>CreateNewPhoto</h1>
+
+<h4>PhotoViewModel</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="CreateNewPhoto" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Description" class="control-label"></label>
+                <input asp-for="Description" class="form-control" />
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="HashtagsString" class="control-label"></label>
+                <input asp-for="HashtagsString" class="form-control" />
+                <span asp-validation-for="HashtagsString" class="text-danger"></span>
+
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">Upload photo here:</label>
+
+                <div class="custom-file">
+                    <input type="file" id="file" name="photoFile" class="custom-file-input" accept=".jpg,.jpeg,.png,.bmp">
+                    <label id="fileNameLabel" class="custom-file-label" for="customFile">Choose file</label>
+                </div>
+
+            </div>
+            <hr />
+            <div id="uploadOptions">
+                <div class="form-check">
+                    @Html.CheckBoxFor(model => model.DoResize, new { @class = "form-check-input" })
+                    @Html.LabelFor(model => model.DoResize, new { @class = "form-check-label" })
+
+                </div>
+                <div id="resizeOptions" class="form-group">
+                    <label for="ResizeWidth" class="control-label">Width:</label>
+                    <input type="number" id="resizeWidth" name="ResizeWidth" value="" class="form-control" disabled="disabled" />
+                    <label for="resizeHeight" class="control-label">Height:</label>
+                    <input type="number" id="resizeHeight" name="resizeHeight" value="" class="form-control" disabled />
+                </div>
+
+                <div class="form-check">
+                    @Html.CheckBoxFor(model => model.DoConversion, new { @class = "form-check-input" })
+                    @Html.LabelFor(model => model.DoConversion, new { @class = "form-check-label" })
+                </div>
+                <div id="conversionOptions" class="form-group">
+                    @foreach (var item in Model.AvailableFormats)
+                    {
+                        <div class="form-check">
+                            <label class="form-check-label">
+                                <input type="radio" class="form-check-input" name="ConversionExtension" value="@item" checked disabled>@item
+                            </label>
+                        </div>
+
+                    }
+                    @*<div class="form-check">
+                        <label class="form-check-label">
+                            <input type="radio" class="form-check-input" name="ConversionExtension" value="png" disabled>.Png
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <label class="form-check-label">
+                            <input type="radio" class="form-check-input" name="ConversionExtension" value="jpg" disabled>.Jpg
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <label class="form-check-label">
+                            <input type="radio" class="form-check-input" name="ConversionExtension" value="jpeg" disabled>.Jpeg
+                        </label>
+                    </div>
+                    <div class="form-check disabled">
+                        <label class="form-check-label">
+                            <input type="radio" class="form-check-input" name="ConversionExtension" value="bmp" disabled>.Bmp
+                        </label>
+                    </div>*@
+                    <input type="hidden" id="originalImageExtension" name="originalImageExtension" value="" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        $(function () {
+            $('#DoResize').change(function () {
+                console.log($(this).is(':checked'));
+                if ($(this).is(':checked')) {
+                    $('#resizeWidth').removeAttr('disabled');
+                    $('#resizeHeight').removeAttr('disabled');
+                }
+                else {
+                    $('#resizeWidth').attr('disabled', 'disabled');
+                    $('#resizeHeight').attr('disabled', 'disabled');
+
+                }
+            })
+
+            $('#DoConversion').change(function () {
+                console.log($(this).is(':checked'));
+                var radios = $("input:radio[name ='ConversionExtension']");
+
+                if ($(this).is(':checked')) {
+                    for (i = 0; i <= radios.length; i++) {
+                        $(radios[i]).removeAttr('disabled');
+                    }
+                }
+                else {
+                    for (i = 0; i <= radios.length; i++) {
+                        $(radios[i]).attr('disabled', 'disabled');
+                    }
+
+
+                }
+            })
+
+            $('#file').change(function () {
+
+                var fr = new FileReader;
+                var me = this;
+                fr.onload = function () {
+                    var img = new Image;
+
+                    img.onload = function () {
+                        var fileExtension = me.files[0].name.split('.').pop();
+                        $('#originalImageExtension').val(fileExtension);
+                        $('#resizeWidth').val(img.width);
+                        $('#resizeHeight').val(img.height);
+                        $('#fileNameLabel').text(me.files[0].name);
+                        var radios = $("input:radio[name ='ConversionExtension']");
+                        for (i = 0; i <= radios.length; i++) {
+                            if ($(radios[i]).val() == fileExtension) {
+                                $(radios[i]).attr('checked', 'checked')
+                            }
+                        }
+                    };
+
+                    img.src = fr.result;
+                };
+
+                fr.readAsDataURL(this.files[0]);
+
+            });
+
+        })
+
+    </script>
+}
